@@ -91,13 +91,10 @@ db_path = parent_dir + "/database.db"
 table_name = 'data'
 COLUMNS = ['source_code', 'source_code_description', 'source_vocabulary_id', 'source_domain_id', 'source_concept_class_id', 'target_concept_id', 'target_concept_name', 'target_vocabulary_id', 'target_domain_id', 'target_concept_class_id']
 
-columns = create_db(csv_path=csv_path, db_path=db_path, table_name=table_name)
-if os.path.exists(csv_path): columns = COLUMNS
-print('columns = ', columns)
-
-result_df = pd.DataFrame()
-if os.path.exists('crude.csv'):
-    result_df = pd.read_csv('crude.csv')
+if 'columns' not in st.session_state: 
+    st.session_state.columns = create_db(csv_path=csv_path, db_path=db_path, table_name=table_name)
+if os.path.exists(csv_path): st.session_state.columns = COLUMNS
+print('columns = ', st.session_state.columns)
 
 st.title('JHU ETL Mapping Dictionary')
 user_query = st.text_input("Enter your search string, it could be a description a concept code (ex: levophed)", "")
@@ -108,7 +105,7 @@ def getDf(user_query, columns, table_name):
 if 'unfiltered_df' not in st.session_state: st.session_state.unfiltered_df = pd.DataFrame()
 
 if st.button('Search'):
-    st.session_state.unfiltered_df = getDf(user_query, columns, table_name)
+    st.session_state.unfiltered_df = getDf(user_query, st.session_state.columns, table_name)
 
 if 'filtered_df' not in st.session_state: st.session_state.filtered_df = pd.DataFrame()
 st.session_state.filtered_df = st.session_state.unfiltered_df
