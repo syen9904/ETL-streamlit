@@ -85,11 +85,11 @@ def search(search_str, columns, table_name):
             print("Database connection is closed")
 
 
-parent_dir = os.path.dirname(os.path.dirname(os.getcwd()))
+parent_dir = os.path.dirname(os.getcwd())
 csv_path = parent_dir + "/cteVocabMapDF.csv"
 db_path = parent_dir + "/database.db"
 table_name = 'data'
-COLUMNS = ['source_code', 'source_code_description', 'source_vocabulary_id', 'source_domain_id', 'source_concept_class_id', ' ', 'target_concept_id', 'target_concept_name', 'target_vocabulary_id', 'target_domain_id', 'target_concept_class_id']
+COLUMNS = ['source_code', 'source_code_description', 'source_vocabulary_id', 'source_domain_id', 'source_concept_class_id', 'target_concept_id', 'target_concept_name', 'target_vocabulary_id', 'target_domain_id', 'target_concept_class_id']
 
 columns = create_db(csv_path=csv_path, db_path=db_path, table_name=table_name)
 if os.path.exists(csv_path): columns = COLUMNS
@@ -114,15 +114,25 @@ if 'filtered_df' not in st.session_state: st.session_state.filtered_df = pd.Data
 st.session_state.filtered_df = st.session_state.unfiltered_df
 
 st.sidebar.markdown("### Filters")
+filter_expander = {}
 filter_dict = {}
-for c in ['source_vocabulary_id', 'source_domain_id', 'source_concept_class_id', 'target_vocabulary_id', 'target_domain_id', 'target_concept_class_id']:
+columns_to_be_filtered = ['source_vocabulary_id', 'source_domain_id', 'source_concept_class_id', 'target_vocabulary_id', 'target_domain_id', 'target_concept_class_id']
+
+for c in columns_to_be_filtered:
+    no_filter = True
     if c not in st.session_state.unfiltered_df: continue
-    st.sidebar.markdown(f"#### {c}")
+    expander = st.sidebar.expander(c)
     filter_dict[c] = {}
     for t in st.session_state.unfiltered_df[c].unique():
-        filter_dict[c][t] = st.sidebar.checkbox(f"{t} ({(st.session_state.unfiltered_df[c]==t).sum()})", True)
-        if not filter_dict[c][t]:
-            st.session_state.filtered_df = st.session_state.filtered_df[st.session_state.filtered_df[c]!=t]
+        filter_dict[c][t] = expander.checkbox(f"{t} ({(st.session_state.unfiltered_df[c]==t).sum()})", False, c+','+t)
+        if filter_dict[c][t]: 
+            no_filter = False
+    if no_filter == False:
+        for t in st.session_state.unfiltered_df[c].unique():
+            if not filter_dict[c][t]:
+                st.session_state.filtered_df = st.session_state.filtered_df[st.session_state.filtered_df[c] != t]        
+
+st.write(f"{len(st.session_state.unfiltered_df)} results found for '{user_query}'")
 
 if len(st.session_state.filtered_df) > 0:
     st.write(st.session_state.filtered_df)
