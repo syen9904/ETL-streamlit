@@ -66,7 +66,7 @@ def search(search_str, columns, table_name):
     query = str_to_query(search_str, columns, table_name)
     conn = None
     try:
-        conn = sqlite3.connect(db_path)
+        conn = sqlite3.connect(st.session_state.db_path)
         logging.info("Connected to database successfully")
         cursor = conn.cursor()
         cursor.execute(query)
@@ -84,28 +84,26 @@ def search(search_str, columns, table_name):
             conn.close()
             print("Database connection is closed")
 
-
-parent_dir = os.path.dirname(os.getcwd())
-csv_path = parent_dir + "/cteVocabMapDF.csv"
-db_path = parent_dir + "/database.db"
-table_name = 'data'
-COLUMNS = ['source_code', 'source_code_description', 'source_vocabulary_id', 'source_domain_id', 'source_concept_class_id', 'target_concept_id', 'target_concept_name', 'target_vocabulary_id', 'target_domain_id', 'target_concept_class_id']
+def getDf(user_query, columns, table_name):
+    return pd.DataFrame(search(user_query, columns, table_name), columns=columns)
 
 if 'columns' not in st.session_state: 
-    st.session_state.columns = create_db(csv_path=csv_path, db_path=db_path, table_name=table_name)
-if os.path.exists(csv_path): st.session_state.columns = COLUMNS
-print('columns = ', st.session_state.columns)
+    st.session_state.parent_dir = os.path.dirname(os.getcwd())
+    st.session_state.csv_path = st.session_state.parent_dir + "/cteVocabMapDF.csv"
+    st.session_state.db_path = st.session_state.parent_dir + "/database.db"
+    st.session_state.table_name = 'data'
+    st.session_state.COLUMNS = ['source_code', 'source_code_description', 'source_vocabulary_id', 'source_domain_id', 'source_concept_class_id', 'target_concept_id', 'target_concept_name', 'target_vocabulary_id', 'target_domain_id', 'target_concept_class_id']
+    st.session_state.columns = create_db(csv_path=st.session_state.csv_path, db_path=st.session_state.db_path, table_name=st.session_state.table_name)
+    if os.path.exists(st.session_state.csv_path): st.session_state.columns = st.session_state.COLUMNS
+    print('columns = ', st.session_state.columns)
 
 st.title('JHU ETL Mapping Dictionary')
 user_query = st.text_input("Enter your search string, it could be a description a concept code (ex: levophed)", "")
 
-def getDf(user_query, columns, table_name):
-    return pd.DataFrame(search(user_query, columns, table_name), columns=columns)
-
 if 'unfiltered_df' not in st.session_state: st.session_state.unfiltered_df = pd.DataFrame()
 
 if st.button('Search'):
-    st.session_state.unfiltered_df = getDf(user_query, st.session_state.columns, table_name)
+    st.session_state.unfiltered_df = getDf(user_query, st.session_state.columns, st.session_state.table_name)
 
 if 'filtered_df' not in st.session_state: st.session_state.filtered_df = pd.DataFrame()
 st.session_state.filtered_df = st.session_state.unfiltered_df

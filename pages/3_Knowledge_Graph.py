@@ -101,21 +101,21 @@ omop_tables = ['person', 'observation_period', 'visit_occurrence', 'visit_detail
 
 st.title('Knowledge Graph')
 
-G = nx.DiGraph()
-
-edges = getEdges(omop_tables)
-for a, b in edges:
-    G.add_edge(a, b)
+if 'G' not in st.session_state:
+    st.session_state.G = nx.DiGraph()
+    st.session_state.edges = getEdges(omop_tables)
+    for a, b in st.session_state.edges:
+        st.session_state.G.add_edge(a, b)
 
 for node in omop_tables:
-    if node in G.nodes:
-        G.nodes[node]['group'] = 'OMOP'
+    if node in st.session_state.G.nodes:
+        st.session_state.G.nodes[node]['group'] = 'OMOP'
 
-st.write(f"Number of edges from PMAP to OMOP", len(edges))
-st.write("Is this graph a DAG: ", nx.is_directed_acyclic_graph(G))
+st.write(f"Number of edges from PMAP to OMOP", len(st.session_state.edges))
+st.write("Is this graph a DAG: ", nx.is_directed_acyclic_graph(st.session_state.G))
 
 net = Network(height="750px", width="100%", bgcolor="#222222", font_color="white")
-net.from_nx(G)
+net.from_nx(st.session_state.G)
 
 
 # Generate network without saving it to a file
