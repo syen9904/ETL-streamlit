@@ -106,6 +106,9 @@ if 'G' not in st.session_state:
     st.session_state.edges = getEdges(omop_tables)
     for a, b in st.session_state.edges:
         st.session_state.G.add_edge(a, b)
+    st.session_state.net = Network(height="750px", width="100%", bgcolor="#222222", font_color="white")
+    st.session_state.net.from_nx(st.session_state.G)
+    st.session_state.net_html = st.session_state.net.generate_html()
 
 for node in omop_tables:
     if node in st.session_state.G.nodes:
@@ -114,12 +117,5 @@ for node in omop_tables:
 st.write(f"Number of edges from PMAP to OMOP", len(st.session_state.edges))
 st.write("Is this graph a DAG: ", nx.is_directed_acyclic_graph(st.session_state.G))
 
-net = Network(height="750px", width="100%", bgcolor="#222222", font_color="white")
-net.from_nx(st.session_state.G)
-
-
-# Generate network without saving it to a file
-net_html = net.generate_html()
-
 # Display in Streamlit
-components.html(net_html, height=800)
+components.html(st.session_state.net_html, height=800)
