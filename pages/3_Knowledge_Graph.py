@@ -4,9 +4,12 @@ import streamlit as st
 import networkx as nx
 from pyvis.network import Network
 import streamlit.components.v1 as components
+import logging
 
 sys.path.append(os.getcwd() + '/src')
 from functions import getCodes
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s') 
 
 def find_node(line, keys, false_keys, comment_keys):
     for start_key in keys:
@@ -102,6 +105,7 @@ omop_tables = ['person', 'observation_period', 'visit_occurrence', 'visit_detail
 st.title('Knowledge Graph')
 
 if 'G' not in st.session_state:
+    logging.info("Graph is not created")
     st.session_state.G = nx.DiGraph()
     st.session_state.edges = getEdges(omop_tables)
     for a, b in st.session_state.edges:
@@ -110,9 +114,7 @@ if 'G' not in st.session_state:
     st.session_state.net.from_nx(st.session_state.G)
     st.session_state.net_html = st.session_state.net.generate_html()
 
-for node in omop_tables:
-    if node in st.session_state.G.nodes:
-        st.session_state.G.nodes[node]['group'] = 'OMOP'
+logging.info("Graph created")
 
 st.write(f"Number of edges from PMAP to OMOP", len(st.session_state.edges))
 st.write("Is this graph a DAG: ", nx.is_directed_acyclic_graph(st.session_state.G))
