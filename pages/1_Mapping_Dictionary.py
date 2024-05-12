@@ -109,7 +109,7 @@ if 'columns' not in st.session_state:
         "source_code": st.column_config.Column("Source Code", disabled=True), 
         "target_concept_id": st.column_config.LinkColumn("Target Concept ID", width="small", disabled=True, display_text=st.session_state.athena_prefix + "([^&]*)"), 
         "source_code_description": st.column_config.Column("Source Code Description", width="large", disabled=True), 
-        "target_concept_name": st.column_config.Column("Target Concept Name", width="large", disabled=True), 
+        "target_concept_name": st.column_config.Column("Target Concept Name", width="medium", disabled=True), 
         "source_vocabulary_id": st.column_config.Column("Source Vocabulary ID", width="small", disabled=True), 
         "target_vocabulary_id": st.column_config.Column("Target Vocabulary ID", width="small", disabled=True), 
         "target_domain_id": st.column_config.Column("Target Domain ID", width="small", disabled=True), 
